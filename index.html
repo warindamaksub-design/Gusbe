@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gusbe's Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@300;400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+.room{font-family:'Jost',sans-serif;min-height:100vh;padding:0;position:relative;overflow:hidden;transition:background 1.2s ease,color .6s ease;}
+.room.day{background:#fdf6f0;color:#3d2430;}
+.room.night{background:#0d1020;color:#d8dff0;}
+.room.rain{background:#1e2530;color:#b8c8d5;}
+.bg-wash{position:absolute;inset:0;pointer-events:none;transition:opacity 1.2s ease;z-index:0;}
+.day-wash{background:radial-gradient(ellipse 70% 55% at 15% 8%,rgba(242,184,198,.38) 0%,transparent 60%),radial-gradient(ellipse 55% 45% at 85% 85%,rgba(168,196,160,.28) 0%,transparent 60%);}
+.night-wash{background:radial-gradient(ellipse 80% 60% at 20% 20%,rgba(30,50,110,.55) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(10,20,70,.45) 0%,transparent 60%),radial-gradient(ellipse 40% 35% at 50% 50%,rgba(5,10,40,.7) 0%,transparent 80%);}
+.rain-wash{background:radial-gradient(ellipse 70% 55% at 50% 30%,rgba(140,165,190,.12) 0%,transparent 60%),radial-gradient(ellipse 80% 65% at 30% 70%,rgba(100,130,160,.1) 0%,transparent 70%);}
+.room.day .day-wash{opacity:1;}.room.day .night-wash,.room.day .rain-wash{opacity:0;}
+.room.night .night-wash{opacity:1;}.room.night .day-wash,.room.night .rain-wash{opacity:0;}
+.room.rain .rain-wash{opacity:1;}.room.rain .day-wash,.room.rain .night-wash{opacity:0;}
+.hotel-lights{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:0;transition:opacity 1.2s;}
+.room.night .hotel-lights{opacity:1;}
+.hlight{position:absolute;border-radius:50%;}
+.hl1{width:220px;height:140px;background:radial-gradient(ellipse,rgba(60,90,200,.12) 0%,transparent 70%);top:60px;right:80px;}
+.hl2{width:140px;height:100px;background:radial-gradient(ellipse,rgba(40,70,180,.1) 0%,transparent 70%);bottom:180px;left:60px;animation:breathe 6s ease-in-out infinite alternate;}
+.hl3{width:100px;height:80px;background:radial-gradient(ellipse,rgba(80,110,220,.08) 0%,transparent 70%);top:40%;right:30px;animation:breathe 8s ease-in-out infinite alternate-reverse;}
+@keyframes breathe{from{opacity:.6;}to{opacity:1;}}
+.stars-layer{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:0;transition:opacity 1.2s;}
+.room.night .stars-layer{opacity:1;}
+.star{position:absolute;border-radius:50%;animation:twinkle 3s ease infinite;}
+@keyframes twinkle{0%,100%{opacity:.7;}50%{opacity:.08;}}
+.shooting-stars{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:0;transition:opacity 1s;}
+.room.night .shooting-stars{opacity:1;}
+.sstar{position:absolute;height:1px;border-radius:1px;background:linear-gradient(90deg,rgba(160,190,255,.85),transparent);animation:shoot linear infinite;transform-origin:left center;}
+@keyframes shoot{from{transform:translateX(-200px) translateY(0) rotate(-22deg);opacity:0;}10%{opacity:1;}to{transform:translateX(650px) translateY(220px) rotate(-22deg);opacity:0;}}
+.bubbles{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.bubble{position:absolute;border-radius:50%;animation:floatUp linear infinite;}
+.room.day .bubble{background:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.65);}
+.room.night .bubble{background:rgba(80,110,200,.07);border:1px solid rgba(100,140,230,.15);}
+.room.rain .bubble{background:rgba(130,155,180,.09);border:1px solid rgba(150,175,200,.2);}
+@keyframes floatUp{0%{transform:translateY(0) translateX(0) scale(1);opacity:0;}8%{opacity:.75;}92%{opacity:.3;}100%{transform:translateY(-105vh) translateX(15px) scale(.65);opacity:0;}}
+.rain-layer{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:0;transition:opacity 1s;}
+.room.rain .rain-layer{opacity:1;}
+.drop{position:absolute;border-radius:1px;animation:fall linear infinite;}
+@keyframes fall{from{top:-20px;}to{top:110%;}}
+.top-wave{position:absolute;top:0;left:0;width:100%;pointer-events:none;z-index:1;}
+.bot-wave{position:absolute;bottom:0;left:0;width:100%;pointer-events:none;z-index:1;}
+.scene-bar{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid;transition:all .6s;backdrop-filter:blur(12px);}
+.room.day .scene-bar{background:rgba(253,246,240,.85);border-color:rgba(242,184,198,.25);}
+.room.night .scene-bar{background:rgba(8,12,28,.9);border-color:rgba(60,90,200,.12);}
+.room.rain .scene-bar{background:rgba(22,30,42,.9);border-color:rgba(130,155,185,.1);}
+.logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;font-weight:300;transition:color .6s;}
+.room.day .logo{color:#6a3040;}
+.room.night .logo{color:#8098d0;}
+.room.rain .logo{color:#7090a8;}
+.scene-btns{display:flex;gap:7px;}
+.sbtn{padding:6px 15px;border-radius:100px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.05em;cursor:pointer;border:1px solid;transition:all .25s;}
+.room.day .sbtn{background:transparent;border-color:rgba(242,184,198,.4);color:#b48090;}
+.room.night .sbtn{background:transparent;border-color:rgba(60,90,200,.2);color:#5070a0;}
+.room.rain .sbtn{background:transparent;border-color:rgba(130,155,185,.2);color:#6080a0;}
+.room.day .sbtn.active{background:rgba(242,184,198,.3);border-color:rgba(242,184,198,.6);color:#8a3050;}
+.room.night .sbtn.active{background:rgba(40,70,170,.25);border-color:rgba(80,120,220,.4);color:#90b0f0;}
+.room.rain .sbtn.active{background:rgba(130,155,185,.15);border-color:rgba(150,175,210,.35);color:#90b8d0;}
+.content{max-width:860px;margin:0 auto;padding:52px 28px 100px;position:relative;z-index:5;}
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:52px;}
+.eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;transition:color .6s;}
+.room.day .eyebrow{color:#c4889a;}
+.room.night .eyebrow{color:#4060a0;}
+.room.rain .eyebrow{color:#608090;}
+.main-title{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,8vw,72px);font-weight:300;line-height:.95;font-style:italic;transition:color .6s;}
+.room.day .main-title{color:#3d2430;}
+.room.night .main-title{color:#c0ccf0;}
+.room.rain .main-title{color:#90b0c8;}
+.main-title span{font-style:normal;transition:color .6s;}
+.room.day .main-title span{color:#a8c4a0;}
+.room.night .main-title span{color:#4060b0;}
+.room.rain .main-title span{color:#5880a0;}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:100px;padding:5px 14px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.05em;margin-top:12px;transition:all .6s;}
+.room.day .pill{background:rgba(242,184,198,.2);border:1px solid rgba(242,184,198,.45);color:#c4889a;}
+.room.night .pill{background:rgba(40,70,170,.15);border:1px solid rgba(60,100,210,.25);color:#5878c0;}
+.room.rain .pill{background:rgba(130,155,185,.1);border:1px solid rgba(150,175,210,.25);color:#6090a8;}
+.pip{width:5px;height:5px;border-radius:50%;animation:blink 2.5s ease infinite;}
+.room.day .pip{background:#e8a0b0;}
+.room.night .pip{background:#4060c0;}
+.room.rain .pip{background:#6090b0;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
+.status-chip{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:100px;font-size:11px;font-family:'DM Mono',monospace;white-space:nowrap;transition:all .6s;backdrop-filter:blur(6px);}
+.room.day .status-chip{background:rgba(255,255,255,.55);border:1px solid rgba(242,184,198,.3);color:#b48090;}
+.room.night .status-chip{background:rgba(255,255,255,.03);border:1px solid rgba(60,90,200,.15);color:#4860a0;}
+.room.rain .status-chip{background:rgba(255,255,255,.03);border:1px solid rgba(130,155,185,.15);color:#5880a0;}
+.bio{font-size:16px;line-height:1.9;font-weight:300;margin-bottom:44px;max-width:560px;transition:color .6s;}
+.room.day .bio{color:#8a6070;}
+.room.night .bio{color:#7080a8;}
+.room.rain .bio{color:#7090a0;}
+.bio b{font-weight:400;transition:color .6s;}
+.room.day .bio b{color:#3d2430;}
+.room.night .bio b{color:#c0ccf0;}
+.room.rain .bio b{color:#90b0c8;}
+.bio em{transition:color .6s;}
+.room.day .bio em{color:#a8c4a0;}
+.room.night .bio em{color:#4060b0;}
+.room.rain .bio em{color:#5880a0;}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:52px;}
+.tag{padding:5px 15px;border-radius:100px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.05em;border:1px solid;background:rgba(255,255,255,.45);backdrop-filter:blur(4px);transition:all .3s;}
+.tag:hover{transform:translateY(-2px);}
+.room.day .tag.tp{border-color:rgba(242,184,198,.5);color:#c4889a;}
+.room.day .tag.tm{border-color:rgba(168,196,160,.5);color:#7a9e74;}
+.room.day .tag.tb{border-color:rgba(200,180,220,.4);color:#9a7ab8;}
+.room.day .tag.ts{border-color:rgba(220,190,160,.4);color:#b08060;}
+.room.night .tag{background:rgba(255,255,255,.03);border-color:rgba(60,90,200,.18);color:#4868a8;}
+.room.rain .tag{background:rgba(255,255,255,.03);border-color:rgba(130,155,185,.2);color:#5880a0;}
+.sec-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:18px;transition:color .6s;}
+.room.day .sec-lbl{color:#c4a8b4;}
+.room.night .sec-lbl{color:#334470;}
+.room.rain .sec-lbl{color:#507080;}
+.glass-card{border-radius:20px;padding:26px;position:relative;transition:all .5s;backdrop-filter:blur(14px);}
+.room.day .glass-card{background:rgba(255,255,255,.52);border:1px solid rgba(242,184,198,.22);}
+.room.day .glass-card:hover{background:rgba(255,255,255,.72);transform:translateY(-4px);box-shadow:0 14px 36px rgba(196,136,154,.1);}
+.room.night .glass-card{background:rgba(15,22,55,.5);border:1px solid rgba(50,80,180,.15);}
+.room.night .glass-card:hover{background:rgba(20,30,70,.6);transform:translateY(-4px);}
+.room.rain .glass-card{background:rgba(22,32,48,.45);border:1px solid rgba(130,155,185,.12);}
+.room.rain .glass-card:hover{background:rgba(28,40,58,.55);transform:translateY(-4px);}
+.card-ico{font-size:22px;margin-bottom:12px;}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;margin-bottom:6px;transition:color .6s;}
+.room.day .card-title{color:#3d2430;}
+.room.night .card-title{color:#b0c0e8;}
+.room.rain .card-title{color:#90b0c8;}
+.card-desc{font-size:13px;font-weight:300;line-height:1.65;margin-bottom:14px;transition:color .6s;}
+.room.day .card-desc{color:#9a7080;}
+.room.night .card-desc{color:#4860a0;}
+.room.rain .card-desc{color:#607888;}
+.card-techs{display:flex;flex-wrap:wrap;gap:5px;}
+.tbadge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:100px;border:1px solid;transition:all .5s;}
+.room.day .tbadge{background:rgba(242,184,198,.1);border-color:rgba(242,184,198,.3);color:#c4889a;}
+.room.night .tbadge{background:rgba(40,60,160,.12);border-color:rgba(60,90,200,.22);color:#5070b8;}
+.room.rain .tbadge{background:rgba(130,155,185,.08);border-color:rgba(150,175,210,.2);color:#6080a0;}
+.carrow{position:absolute;top:22px;right:22px;font-size:14px;transition:all .3s,color .6s;}
+.room.day .carrow{color:#e0c0c8;}
+.room.night .carrow{color:#2a3870;}
+.room.rain .carrow{color:#3a5868;}
+.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px;margin-bottom:48px;}
+.proj-feat{grid-column:1/-1;}
+.room.day .proj-feat{background:rgba(242,184,198,.12);border-color:rgba(242,184,198,.38);}
+.room.night .proj-feat{background:rgba(20,35,90,.5);border-color:rgba(50,80,180,.2);}
+.room.rain .proj-feat{background:rgba(25,40,60,.45);border-color:rgba(130,155,185,.18);}
+.lofi-box{margin-bottom:48px;}
+.lofi-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.lofi-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;font-weight:300;transition:color .6s;}
+.room.day .lofi-title{color:#3d2430;}
+.room.night .lofi-title{color:#8098d8;}
+.room.rain .lofi-title{color:#7898b0;}
+.lofi-meta{font-size:11px;font-family:'DM Mono',monospace;transition:color .6s;}
+.room.day .lofi-meta{color:#b4a0aa;}
+.room.night .lofi-meta{color:#304070;}
+.room.rain .lofi-meta{color:#4a6878;}
+.player-row{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.play-btn{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;font-size:15px;flex-shrink:0;transition:all .3s;}
+.room.day .play-btn{background:#f2b8c6;color:#fff;}
+.room.day .play-btn:hover{background:#e8a0b0;transform:scale(1.05);}
+.room.night .play-btn{background:rgba(40,70,180,.3);color:#8090e0;}
+.room.night .play-btn:hover{background:rgba(40,70,180,.45);}
+.room.rain .play-btn{background:rgba(130,155,185,.18);color:#80a8c8;}
+.room.rain .play-btn:hover{background:rgba(130,155,185,.28);}
+.tname{font-size:14px;font-weight:400;margin-bottom:3px;transition:color .6s;}
+.room.day .tname{color:#3d2430;}
+.room.night .tname{color:#8098d8;}
+.room.rain .tname{color:#80a0b8;}
+.tart{font-size:11px;font-family:'DM Mono',monospace;transition:color .6s;}
+.room.day .tart{color:#b4a0aa;}
+.room.night .tart{color:#304070;}
+.room.rain .tart{color:#4a6878;}
+.prog-wrap{border-radius:100px;height:3px;cursor:pointer;margin-bottom:16px;transition:background .6s;}
+.room.day .prog-wrap{background:rgba(242,184,198,.25);}
+.room.night .prog-wrap{background:rgba(40,70,180,.18);}
+.room.rain .prog-wrap{background:rgba(130,155,185,.15);}
+.prog-fill{height:100%;border-radius:100px;width:38%;transition:width .3s,background .6s;}
+.room.day .prog-fill{background:#e8a0b0;}
+.room.night .prog-fill{background:#4060c0;}
+.room.rain .prog-fill{background:#5888a8;}
+.vol-row{display:flex;align-items:center;gap:10px;}
+.vol-lbl{font-size:11px;font-family:'DM Mono',monospace;width:36px;transition:color .6s;}
+.room.day .vol-lbl{color:#c4a8b4;}
+.room.night .vol-lbl{color:#304070;}
+.room.rain .vol-lbl{color:#4a6878;}
+.vol-sl{flex:1;-webkit-appearance:none;height:3px;border-radius:100px;outline:none;cursor:pointer;transition:background .6s;}
+.room.day .vol-sl{background:rgba(242,184,198,.3);}
+.room.day .vol-sl::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#e8a0b0;cursor:pointer;}
+.room.night .vol-sl{background:rgba(40,70,180,.2);}
+.room.night .vol-sl::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#4060c0;cursor:pointer;}
+.room.rain .vol-sl{background:rgba(130,155,185,.2);}
+.room.rain .vol-sl::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#5888a8;cursor:pointer;}
+.vol-val{font-size:11px;font-family:'DM Mono',monospace;transition:color .6s;}
+.room.day .vol-val{color:#c4a8b4;}
+.room.night .vol-val{color:#304070;}
+.room.rain .vol-val{color:#4a6878;}
+.playlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:7px;margin-top:14px;}
+.pl-item{border-radius:12px;padding:10px 13px;cursor:pointer;transition:all .25s;font-size:12px;font-family:'DM Mono',monospace;border:1px solid;backdrop-filter:blur(4px);}
+.room.day .pl-item{background:rgba(255,255,255,.45);border-color:rgba(242,184,198,.2);color:#9a7080;}
+.room.day .pl-item:hover,.room.day .pl-item.active{background:rgba(242,184,198,.2);border-color:rgba(242,184,198,.45);color:#6a3040;}
+.room.night .pl-item{background:rgba(10,18,50,.5);border-color:rgba(40,70,180,.15);color:#364878;}
+.room.night .pl-item:hover,.room.night .pl-item.active{background:rgba(30,50,140,.3);border-color:rgba(60,100,220,.3);color:#80a0e8;}
+.room.rain .pl-item{background:rgba(18,28,42,.5);border-color:rgba(120,148,178,.12);color:#4a6878;}
+.room.rain .pl-item:hover,.room.rain .pl-item.active{background:rgba(30,50,70,.4);border-color:rgba(140,170,200,.28);color:#90b8d0;}
+.seat-section{margin-bottom:48px;}
+.seat-cabin-lbl{font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.12em;text-align:center;margin-bottom:14px;transition:color .6s;}
+.room.day .seat-cabin-lbl{color:#c4a8b4;}
+.room.night .seat-cabin-lbl{color:#304070;}
+.room.rain .seat-cabin-lbl{color:#4a6878;}
+.seat-map{display:flex;flex-direction:column;gap:6px;max-width:380px;margin:0 auto;}
+.seat-row{display:flex;align-items:center;gap:5px;}
+.row-num{font-size:11px;font-family:'DM Mono',monospace;width:18px;text-align:right;transition:color .6s;}
+.room.day .row-num{color:#c4a8b4;}
+.room.night .row-num{color:#28386a;}
+.room.rain .row-num{color:#3a5868;}
+.sg{display:flex;gap:4px;}.aisle{width:18px;}
+.seat{width:34px;height:28px;border-radius:7px;border:1px solid;cursor:pointer;transition:all .22s;font-size:10px;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;}
+.room.day .seat{background:rgba(255,255,255,.6);border-color:rgba(242,184,198,.3);color:#c4a8b4;}
+.room.night .seat{background:rgba(10,18,50,.55);border-color:rgba(40,70,180,.2);color:#28386a;}
+.room.rain .seat{background:rgba(18,28,45,.5);border-color:rgba(120,148,178,.18);color:#3a5868;}
+.seat.occupied{opacity:.3;cursor:default;pointer-events:none;}
+.seat:not(.occupied):hover{transform:scale(1.1);}
+.seat.selected{transform:scale(1.1);}
+.room.day .seat.selected{background:#f2b8c6;border-color:#e8a0b0;color:#6a2030;}
+.room.night .seat.selected{background:rgba(30,60,180,.4);border-color:rgba(70,110,240,.5);color:#90b0f8;}
+.room.rain .seat.selected{background:rgba(80,120,165,.3);border-color:rgba(130,170,210,.45);color:#a0c8e8;}
+.seat-legend{display:flex;justify-content:center;gap:18px;margin-top:10px;font-size:11px;font-family:'DM Mono',monospace;transition:color .6s;}
+.room.day .seat-legend{color:#b4a0aa;}
+.room.night .seat-legend{color:#2a3868;}
+.room.rain .seat-legend{color:#3a5868;}
+.ldot{display:inline-block;width:10px;height:10px;border-radius:3px;border:1px solid;margin-right:5px;vertical-align:middle;transition:all .5s;}
+.room.day .ldot.av{background:rgba(255,255,255,.7);border-color:rgba(242,184,198,.4);}
+.room.day .ldot.sel{background:#f2b8c6;border-color:#e8a0b0;}
+.room.day .ldot.occ{background:rgba(200,180,190,.2);border-color:rgba(200,180,190,.35);}
+.room.night .ldot.av{background:rgba(10,18,50,.6);border-color:rgba(40,70,180,.25);}
+.room.night .ldot.sel{background:rgba(30,60,180,.4);border-color:rgba(70,110,240,.5);}
+.room.night .ldot.occ{background:rgba(10,15,40,.4);border-color:rgba(30,50,120,.2);}
+.room.rain .ldot.av{background:rgba(18,28,45,.55);border-color:rgba(120,148,178,.22);}
+.room.rain .ldot.sel{background:rgba(80,120,165,.3);border-color:rgba(130,170,210,.45);}
+.room.rain .ldot.occ{background:rgba(15,25,40,.4);border-color:rgba(90,115,145,.2);}
+.seat-info-txt{text-align:center;margin-top:10px;font-size:12px;font-family:'DM Mono',monospace;transition:color .6s;}
+.room.day .seat-info-txt{color:#c4a8b4;}
+.room.night .seat-info-txt{color:#304070;}
+.room.rain .seat-info-txt{color:#4a6878;}
+.currently{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:44px;}
+.cur{border-radius:14px;padding:16px 18px;backdrop-filter:blur(8px);transition:all .5s;}
+.room.day .cur{background:rgba(255,255,255,.45);border:1px solid rgba(242,184,198,.18);}
+.room.night .cur{background:rgba(10,18,50,.5);border:1px solid rgba(40,70,180,.12);}
+.room.rain .cur{background:rgba(18,28,45,.45);border:1px solid rgba(120,148,178,.1);}
+.cur-lbl{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.12em;margin-bottom:7px;transition:color .6s;}
+.room.day .cur-lbl{color:#c4a8b4;}
+.room.night .cur-lbl{color:#304070;}
+.room.rain .cur-lbl{color:#4a6878;}
+.cur-val{font-size:13px;font-weight:400;transition:color .6s;}
+.room.day .cur-val{color:#5a3a48;}
+.room.night .cur-val{color:#8098d8;}
+.room.rain .cur-val{color:#80a8c0;}
+.links{display:flex;flex-wrap:wrap;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:100px;font-size:13px;font-family:'Jost',sans-serif;cursor:pointer;border:1px solid;transition:all .25s;text-decoration:none;}
+.room.day .btn-p{background:#e8a0b0;border-color:#d890a0;color:#fff;}
+.room.day .btn-p:hover{background:#d890a0;transform:translateY(-2px);}
+.room.day .btn-g{background:rgba(255,255,255,.5);border-color:rgba(242,184,198,.35);color:#9a7080;}
+.room.day .btn-g:hover{background:rgba(255,255,255,.8);transform:translateY(-2px);}
+.room.night .btn-p{background:rgba(30,60,180,.35);border-color:rgba(60,100,220,.4);color:#90b0f0;}
+.room.night .btn-p:hover{background:rgba(30,60,180,.5);transform:translateY(-2px);}
+.room.night .btn-g{background:transparent;border-color:rgba(40,70,180,.2);color:#4060a0;}
+.room.night .btn-g:hover{background:rgba(30,55,160,.12);transform:translateY(-2px);}
+.room.rain .btn-p{background:rgba(80,120,165,.25);border-color:rgba(130,170,210,.38);color:#90c0d8;}
+.room.rain .btn-p:hover{background:rgba(80,120,165,.38);transform:translateY(-2px);}
+.room.rain .btn-g{background:transparent;border-color:rgba(120,148,178,.2);color:#5880a0;}
+.room.rain .btn-g:hover{background:rgba(100,130,165,.1);transform:translateY(-2px);}
+</style>
+</head>
+<body>
+<div class="room day" id="room">
+  <div class="bg-wash day-wash"></div>
+  <div class="bg-wash night-wash"></div>
+  <div class="bg-wash rain-wash"></div>
+  <div class="hotel-lights"><div class="hlight hl1"></div><div class="hlight hl2"></div><div class="hlight hl3"></div></div>
+  <div class="stars-layer" id="stars-layer"></div>
+  <div class="shooting-stars" id="sstars"></div>
+  <div class="bubbles" id="bubbles"></div>
+  <div class="rain-layer" id="rain-layer"></div>
+
+  <svg class="top-wave" viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path id="wt1" d="M0,45 C360,90 720,5 1080,50 C1260,72 1380,30 1440,45 L1440,0 L0,0 Z" fill="rgba(242,184,198,.18)" style="transition:fill 1.2s;"/>
+    <path id="wt2" d="M0,65 C240,20 600,85 960,40 C1140,18 1320,70 1440,55 L1440,0 L0,0 Z" fill="rgba(168,196,160,.1)" style="transition:fill 1.2s;"/>
+  </svg>
+  <svg class="bot-wave" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path id="wb" d="M0,40 C360,5 720,75 1080,35 C1260,15 1380,60 1440,40 L1440,80 L0,80 Z" fill="rgba(242,184,198,.12)" style="transition:fill 1.2s;"/>
+  </svg>
+
+  <div class="scene-bar">
+    <div class="logo">Gusbe's Room</div>
+    <div class="scene-btns">
+      <button class="sbtn active" id="btn-day" onclick="setScene('day')">&#9728;&#65039; day</button>
+      <button class="sbtn" id="btn-night" onclick="setScene('night')">&#127769; night</button>
+      <button class="sbtn" id="btn-rain" onclick="setScene('rain')">&#127751;&#65039; rain</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="hdr">
+      <div>
+        <div class="eyebrow">&#10048; my soft corner</div>
+        <div class="main-title"><em>Gusbe's</em><br><span>Room</span></div>
+        <div class="pill"><span class="pip"></span>open to collabs</div>
+      </div>
+      <div class="status-chip"><span class="pip"></span>building stuff rn</div>
+    </div>
+
+    <p class="bio">hey i'm <b>Gusbe</b> — a <em>gen z dek inter</em> who's into design, dev, and everything in between. i build things that feel <b>good</b>, look <b>different</b>, and actually <b>work</b>. this is my little room on the web &#128715;&#65039;</p>
+
+    <div class="tags">
+      <span class="tag tp">&#127802; pilates</span>
+      <span class="tag tm">&#127861; matcha</span>
+      <span class="tag tb">&#129648; ballet</span>
+      <span class="tag tp">&#129511; bubble</span>
+      <span class="tag tm">ui/ux design</span>
+      <span class="tag ts">&#127481;&#127469; bilingual</span>
+    </div>
+
+    <div class="sec-lbl">// lofi room</div>
+    <div class="glass-card lofi-box">
+      <div class="lofi-head">
+        <div>
+          <div class="lofi-title" id="lofi-title">&#127925; soft hours</div>
+          <div class="lofi-meta" style="margin-top:4px;" id="lofi-sub">matcha mood &middot; lo-fi beats</div>
+        </div>
+        <div class="lofi-meta" id="time-display">00:00</div>
+      </div>
+      <div class="player-row">
+        <button class="play-btn" id="play-btn" onclick="togglePlay()">&#9654;</button>
+        <div>
+          <div class="tname" id="tname">coffee and rain</div>
+          <div class="tart" id="tart">lofi girl &mdash; study beats</div>
+        </div>
+      </div>
+      <div class="prog-wrap" onclick="scrub(event,this)"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="vol-row">
+        <span class="vol-lbl">vol</span>
+        <input type="range" class="vol-sl" min="0" max="100" value="60" id="vol-sl">
+        <span class="vol-val" id="vol-val">60</span>
+      </div>
+      <div class="playlist">
+        <div class="pl-item active" onclick="selTrack(0,this)">coffee &amp; rain</div>
+        <div class="pl-item" onclick="selTrack(1,this)">matcha morning</div>
+        <div class="pl-item" onclick="selTrack(2,this)">pilates flow</div>
+        <div class="pl-item" onclick="selTrack(3,this)">ballet dusk</div>
+        <div class="pl-item" onclick="selTrack(4,this)">bubble bath</div>
+        <div class="pl-item" onclick="selTrack(5,this)">green hour</div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">// your seat</div>
+    <div class="glass-card seat-section" style="padding:24px;">
+      <div class="seat-cabin-lbl">STUDIO &mdash; ROWS 1&ndash;4</div>
+      <div class="seat-map" id="seat-map"></div>
+      <div class="seat-legend">
+        <span><span class="ldot av"></span>available</span>
+        <span><span class="ldot sel"></span>selected</span>
+        <span><span class="ldot occ"></span>taken</span>
+      </div>
+      <div class="seat-info-txt" id="seat-info">pick your spot &#128171;</div>
+    </div>
+
+    <div class="sec-lbl" style="margin-top:44px;">// selected projects</div>
+    <div class="projects">
+      <div class="glass-card proj-feat">
+        <div class="carrow">&#8599;</div>
+        <div class="card-ico">&#127800;</div>
+        <div class="card-title">Gusbe's Room</div>
+        <div class="card-desc">personal portfolio & playground. built with vibes, matcha, and too many tabs open.</div>
+        <div class="card-techs"><span class="tbadge">html/css/js</span><span class="tbadge">figma</span><span class="tbadge">self-hosted</span></div>
+      </div>
+      <div class="glass-card">
+        <div class="carrow">&#8599;</div>
+        <div class="card-ico">&#129511;</div>
+        <div class="card-title">Project 02</div>
+        <div class="card-desc">coming soon — something soft is cooking</div>
+        <div class="card-techs"><span class="tbadge">react</span><span class="tbadge">tba</span></div>
+      </div>
+      <div class="glass-card">
+        <div class="carrow">&#8599;</div>
+        <div class="card-ico">&#129731;</div>
+        <div class="card-title">Project 03</div>
+        <div class="card-desc">a design experiment with no name yet</div>
+        <div class="card-techs"><span class="tbadge">figma</span><span class="tbadge">prototype</span></div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">// currently</div>
+    <div class="currently">
+      <div class="cur"><div class="cur-lbl">listening</div><div class="cur-val" id="cur-music">lofi on repeat</div></div>
+      <div class="cur"><div class="cur-lbl">sipping</div><div class="cur-val">oat matcha latte</div></div>
+      <div class="cur"><div class="cur-lbl">obsessing</div><div class="cur-val">good typography</div></div>
+      <div class="cur"><div class="cur-lbl">timezone</div><div class="cur-val">GMT+7 &#127481;&#127469;</div></div>
+    </div>
+
+    <div class="sec-lbl">// find me</div>
+    <div class="links">
+      <a href="mailto:hello@gusbe.com" class="btn btn-p">&#10048; say hello</a>
+      <a href="https://github.com/gusbe" target="_blank" class="btn btn-g">github</a>
+      <a href="https://instagram.com/gusbe" target="_blank" class="btn btn-g">instagram</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const room=document.getElementById('room');
+const sd={
+  day:{lt:'&#127925; soft hours',ls:'matcha mood · lo-fi beats',cm:'lofi on repeat',w1:'rgba(242,184,198,.18)',w2:'rgba(168,196,160,.1)',wb:'rgba(242,184,198,.12)'},
+  night:{lt:'&#127769; blue hours',ls:'hotel room · deep blue ambient',cm:'deep blue ambient',w1:'rgba(30,60,180,.08)',w2:'rgba(20,40,140,.05)',wb:'rgba(20,50,160,.06)'},
+  rain:{lt:'&#127751; grey hours',ls:'rain on glass · sleep sounds',cm:'rain ambience, sleepy',w1:'rgba(120,148,178,.1)',w2:'rgba(90,118,148,.07)',wb:'rgba(100,130,165,.08)'}
+};
+function setScene(s){
+  room.className='room '+s;
+  ['day','night','rain'].forEach(x=>document.getElementById('btn-'+x).classList.toggle('active',x===s));
+  const d=sd[s];
+  document.getElementById('lofi-title').innerHTML=d.lt;
+  document.getElementById('lofi-sub').textContent=d.ls;
+  document.getElementById('cur-music').textContent=d.cm;
+  document.getElementById('wt1').setAttribute('fill',d.w1);
+  document.getElementById('wt2').setAttribute('fill',d.w2);
+  document.getElementById('wb').setAttribute('fill',d.wb);
+  buildStars(s);buildShooting(s);buildRain(s);buildBubbles(s);
+}
+function buildBubbles(s){
+  const el=document.getElementById('bubbles');el.innerHTML='';
+  for(let i=0;i<(s==='rain'?5:8);i++){
+    const b=document.createElement('div');b.className='bubble';
+    const sz=Math.random()*14+6;
+    b.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;animation-duration:${Math.random()*10+10}s;animation-delay:${Math.random()*12}s;bottom:-30px;`;
+    el.appendChild(b);
+  }
+}
+function buildStars(s){
+  const el=document.getElementById('stars-layer');
+  if(s!=='night'){el.innerHTML='';return;}
+  let h='';
+  for(let i=0;i<100;i++){
+    const sz=Math.random()*2+.7,delay=Math.random()*4,op=Math.random()*.5+.2;
+    const col=Math.random()>.6?'#a8c0f8':'#d8e4ff';
+    h+=`<div class="star" style="left:${Math.random()*100}%;top:${Math.random()*75}%;width:${sz}px;height:${sz}px;opacity:${op};animation-delay:${delay}s;background:${col};"></div>`;
+  }
+  el.innerHTML=h;
+}
+function buildShooting(s){
+  const el=document.getElementById('sstars');
+  if(s!=='night'){el.innerHTML='';return;}
+  let h='';
+  for(let i=0;i<5;i++){
+    const w=Math.random()*80+60,top=Math.random()*40,left=Math.random()*55,dur=Math.random()*5+6,delay=Math.random()*12;
+    h+=`<div class="sstar" style="width:${w}px;top:${top}%;left:${left}%;animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
+  }
+  el.innerHTML=h;
+}
+function buildRain(s){
+  const el=document.getElementById('rain-layer');
+  if(s!=='rain'){el.innerHTML='';return;}
+  let h='';
+  for(let i=0;i<55;i++){
+    const ht=Math.random()*16+8,dur=(Math.random()*.7+.55).toFixed(2),delay=(Math.random()*2.5).toFixed(2),op=(Math.random()*.18+.06).toFixed(2);
+    h+=`<div class="drop" style="left:${Math.random()*100}%;height:${ht}px;width:1px;background:rgba(150,175,200,${op});animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
+  }
+  el.innerHTML=h;
+}
+const tracks=[
+  {name:'coffee and rain',art:'lofi girl — study beats'},
+  {name:'matcha morning',art:'studio ghibli lofi'},
+  {name:'pilates flow',art:'soft beats collection'},
+  {name:'ballet dusk',art:'classical lofi rework'},
+  {name:'bubble bath',art:'chill lo-fi vibes'},
+  {name:'green hour',art:'zen garden sounds'},
+];
+let playing=false,prog=38,secs=0,timer=null;
+function togglePlay(){
+  playing=!playing;
+  document.getElementById('play-btn').innerHTML=playing?'&#9208;':'&#9654;';
+  if(playing){timer=setInterval(tick,1000);}else{clearInterval(timer);}
+}
+function tick(){
+  prog=Math.min(100,prog+.28);secs++;
+  document.getElementById('prog-fill').style.width=prog+'%';
+  let m=Math.floor(secs/60),ss=secs%60;
+  document.getElementById('time-display').textContent=(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
+  if(prog>=100){prog=0;secs=0;}
+}
+function scrub(e,el){
+  let r=el.getBoundingClientRect();
+  prog=Math.round(((e.clientX-r.left)/r.width)*100);
+  document.getElementById('prog-fill').style.width=prog+'%';
+}
+document.getElementById('vol-sl').addEventListener('input',function(){document.getElementById('vol-val').textContent=this.value;});
+function selTrack(i,el){
+  document.querySelectorAll('.pl-item').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tname').textContent=tracks[i].name;
+  document.getElementById('tart').textContent=tracks[i].art;
+  prog=0;secs=0;
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('time-display').textContent='00:00';
+}
+const occ=[[true,false,false,true],[false,true,true,false],[true,false,true,false],[false,false,true,true]];
+function buildSeats(){
+  const map=document.getElementById('seat-map');map.innerHTML='';
+  ['1','2','3','4'].forEach((r,ri)=>{
+    const row=document.createElement('div');row.className='seat-row';
+    const rn=document.createElement('div');rn.className='row-num';rn.textContent=r;row.appendChild(rn);
+    const gA=document.createElement('div');gA.className='sg';
+    const gB=document.createElement('div');gB.className='sg';
+    const al=document.createElement('div');al.className='aisle';
+    [['A',0],['B',1]].forEach(([col,ci])=>{
+      const s=document.createElement('div');s.className='seat'+(occ[ri][ci]?' occupied':'');
+      s.id=`s${r}${col}`;if(!occ[ri][ci])s.onclick=()=>selSeat(r,col,s);gA.appendChild(s);
+    });
+    [['C',2],['D',3]].forEach(([col,ci])=>{
+      const s=document.createElement('div');s.className='seat'+(occ[ri][ci]?' occupied':'');
+      s.id=`s${r}${col}`;if(!occ[ri][ci])s.onclick=()=>selSeat(r,col,s);gB.appendChild(s);
+    });
+    row.appendChild(gA);row.appendChild(al);row.appendChild(gB);map.appendChild(row);
+  });
+}
+buildSeats();
+function selSeat(r,col,el){
+  document.querySelectorAll('.seat.selected').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  const side={A:'window L',B:'aisle L',C:'aisle R',D:'window R'};
+  document.getElementById('seat-info').textContent=`row ${r} · seat ${col} · ${side[col]} ✨`;
+}
+buildBubbles('day');buildStars('day');
+</script>
+</body>
+</html>
